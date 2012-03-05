@@ -1,0 +1,31 @@
+{
+  test = {
+    map = \:f -> \:m -> let :ks = :keys :m in
+      let :mapf = \:i -> \:n -> \:r -> 
+        if (:i < :n) then let :k = :get :i :ks in :mapf (:i + 1) :n (:set :k (:f :k (:get :k :m)) :r) else :r
+      in :mapf 0 (:size :m) {}
+  },
+  
+  templates = {
+    character = \:c -> let :z = :c in {
+      combat = {
+        ac = 10,
+        blah = :z:name
+      }
+    },
+    from = \:t -> \:x -> :test:map (\:k -> \:v -> :set :k :v :x) (:t :x)
+  },
+  
+  races = {
+    human = {
+      name = "Human"
+    }
+  },
+  
+  characters = {
+    raen = :templates:from :templates:character {
+      name = "Raen",
+      race = :races:human
+    }
+  }
+}
