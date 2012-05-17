@@ -1,0 +1,29 @@
+def mfoldl = \f a m -> 
+  let ks = keys m in
+  let n = size m in
+  let impl = \i r -> 
+    if (i < n)
+      then let k = get i ks 
+        in impl (i + 1) (f r k (get k m)) 
+      else r
+  in impl 0 a
+
+def const = \x -> \y -> x
+
+def foldl = \f a l ->
+  if (size l) == 0
+    then a
+    else foldl f (f a (head l)) (tail l)
+
+def sum = foldl (\a b -> a + b) 0
+
+def map = \f -> foldl (\l x -> cons (f x) l) []
+
+def d2 = mkDice 2
+def d3 = mkDice 3
+def d4 = mkDice 4
+def d6 = mkDice 6
+def d8 = mkDice 8
+def d10 = mkDice 10
+def d12 = mkDice 12
+def d20 = mkDice 20

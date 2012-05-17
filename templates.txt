@@ -1,0 +1,52 @@
+import "functions.txt"
+
+def templates = #ignoreall {
+  character = \c -> merge c (#character (#named {
+    combat = {
+      ac = 10,
+      armorAC = 0,
+      shieldAC = 0,
+      dodgeAC = 0,
+      dmgDice = 0,
+      #character {
+        combat:ac <-
+          @character:combat:ac
+          + @character:stats:dexBonus
+          + @character:combat:armorAC
+          + @character:combat:shieldAC
+          + @character:combat:dodgeAC,
+        characterLevel <- sum (map (get "level") @character:classes),
+        combat:bab <- sum (map (get "bab") @character:classes)
+      }
+    },
+    stats = mfoldl 
+      (\s k v ->
+        let mod = \i -> (i - 10) / 2
+        in set (k ++ "Bonus") (mod v) s
+      ) c:stats c:stats
+  })),
+  armor = extensible1 (templates:equippable (#armor (#named {
+    #character {
+      combat:armorAC <- @armor:ac
+    }
+  }))),
+  weapon = extensible1 (templates:equippable (#weapon (#named {
+    #character {
+      combat:dmgDice <- @character:combat:dmgDice + @weapon:dmg + @character:stats:strBonus
+    }
+  }))),
+  equippable = extensible1 (#equippable {
+    #equippable {
+      :*<- if hasLabel "equipped" @equippable then @equippable else addLabel "ignore" @equippable
+    }
+  }),
+  class = extensible2 (#class (#named {
+    #class {
+      bab <- get (@class:level - 1) @class:babProgression
+    }
+  })),
+  extensible1 = \t x -> merge x t,
+  extensible2 = \t x y -> merge y (merge x t),
+  extends =  \xs t -> foldl (\t x -> merge x t) t xs,
+  from = \t x -> merge x (t x)
+}

@@ -1,21 +1,4 @@
-{
-  test = {
-    map = \:f -> \:m -> let :ks = :keys :m in
-      let :mapf = \:i -> \:n -> \:r -> 
-        if (:i < :n) then let :k = :get :i :ks in :mapf (:i + 1) :n (:set :k (:f :k (:get :k :m)) :r) else :r
-      in :mapf 0 (:size :m) {}
-  },
-  
-  templates = {
-    character = \:c -> let :z = :c in {
-      combat = {
-        ac = 10,
-        blah = :z:name
-      }
-    },
-    from = \:t -> \:x -> :test:map (\:k -> \:v -> :set :k :v :x) (:t :x)
-  },
-  
+{  
   races = {
     human = {
       name = "Human"
@@ -23,9 +6,88 @@
   },
   
   characters = {
-    raen = :templates:from :templates:character {
+    raen = templates:from templates:character {
       name = "Raen",
-      race = :races:human
+      race = races:human,
+      stats = {
+        str = 18,
+        dex = 16
+      },
+      equip = [
+        items:breastplate,
+        items:falchion,
+        items:helm
+      ],
+      traitz = [
+        traits:dodge
+      ]
     }
+  },
+  
+  items = {
+    breastplate = templates:from templates:armor {
+      ac = 6
+    },
+    falchion = {
+      dmg = "2d4"
+    },
+    helm = {
+      name = "Helm",
+      #character {
+        combat:armorAC <- @character:combat:armorAC + 1
+      }
+    }
+  },
+  
+  traits = {
+    dodge = {
+      name = "Dodge",
+      #character {
+        combat:dodgeAC <- @character:combat:dodgeAC + 1
+      }
+    }
+  },
+
+  test = {
+    foldl = \f a m -> 
+      let ks = keys m in
+      let n = size m in
+      let impl = \i r -> 
+        if (i < n)
+          then let k = get i ks 
+            in impl (i + 1) (f r k (get k m)) 
+          else r
+      in impl 0 a,
+    const = \x -> \y -> x
+  },
+  
+  templates = {
+    character = \c -> #character {
+      combat = {
+        ac = 10,
+        armorAC = 0,
+        shieldAC = 0,
+        dodgeAC = 0,
+        #character {
+          combat:ac <-
+            @character:combat:ac
+            + @character:stats:dexBonus
+            + @character:combat:armorAC
+            + @character:combat:shieldAC
+            + @character:combat:dodgeAC
+        }
+      },
+      stats = test:foldl 
+        (\s k v ->
+          let mod = \i -> (i - 10) / 2
+          in set (k ++ "Bonus") (mod v) s
+        ) c:stats c:stats
+    },
+    armor = test:const #armor {
+      #character {
+        combat:armorAC <- @armor:ac
+      }
+    },
+    from = \t x -> merge x (t x)
   }
 }

@@ -1,0 +1,26 @@
+import "templates.txt"
+import "pdata.txt"
+
+def characters = {
+  raen = templates:character {
+    name = "Raen",
+    race = data:races:human,
+    classes = [data:classes:fighter {level = 4}],
+    stats = {
+      str = 18,
+      dex = 16,
+      con = 13,
+      int = 13,
+      wis = 12,
+      cha = 12
+    },
+    equip = [
+      #equipped data:items:breastplate,
+      #equipped data:items:falchion,
+      data:items:helm
+    ],
+    traits = [
+      data:traits:dodge
+    ]
+  }
+}

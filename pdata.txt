@@ -1,0 +1,49 @@
+import "templates.txt"
+
+def data = #ignoreall {
+  items = {
+    breastplate = templates:armor {
+      name = "Breastplate",
+      ac = 6,
+      type = "M"
+    },
+    falchion = templates:weapon {
+      name = "Falchion",
+      dmg = d4 + d4
+    },
+    helm = #named (templates:equippable {
+      name = "Helm",
+      #character {
+        combat:armorAC <- @character:combat:armorAC + 1
+      }
+    })
+  },
+
+  traits = {
+    dodge = #named {
+      name = "Dodge",
+      #character {
+        combat:dodgeAC <- @character:combat:dodgeAC + 1
+      }
+    }
+  },
+
+  races = {
+    human = #named {
+      name = "Human"
+    }
+  },
+
+  classes = {
+    fighter = templates:class {
+      name = "Fighter",
+      babProgression = data:others:babProgressions:fast
+    }
+  },
+  
+  others = {
+    babProgressions = {
+      fast = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+    }
+  }
+}

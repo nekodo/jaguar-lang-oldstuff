@@ -1,0 +1,35 @@
+def data = {
+  a = adder,
+  b = adder2,
+  c = adder 8 7,
+  d = adder2 8,
+  g = fac 10,
+  e = foldl adder 0 [1,2,3],
+  h = sum [1,2,3],
+  f = sum (map (\x -> 1 + x) [1, 2, 3]),
+  beta = (\x -> 1 + x) 5,
+  betaOver = (\x -> map (\y -> x + y)) 5 [1,2,3],
+  looper = loop 1000000
+}
+
+def loop = \n -> 
+  let f = \i -> if (i * 2) > ((n * 3) - n) then (i - 1) else f (i + 1) 
+  in f 0
+
+def adder = \a b -> a + b
+def adder2 = adder 2
+
+def foldl = \f a l ->
+  if (size l) == 0
+    then a
+    else foldl f (f a (head l)) (tail l)
+
+def sum = foldl adder 0
+
+def map = \f -> foldl (\l x -> cons (f x) l) []
+
+def fac = facImpl 1 1
+def facImpl = \i acc n -> 
+  if i > n 
+    then acc 
+    else facImpl (i + 1) n (acc * i)
